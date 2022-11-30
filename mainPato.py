@@ -38,7 +38,7 @@ PURPLE_ARR_MISSPLACED = []
 
 # ======================================================================================
 # CONFIGURE CHART
-chart.suptitle('Classification k-')
+chart.suptitle(f'Classification k - {knn}')
 chart.yticks(np.arange(-5000, 6000, 1000))
 chart.yticks(np.arange(-5000, 6000, 1000))
 chart.xlim(-5000, 5000)
