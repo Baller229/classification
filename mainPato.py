@@ -7,7 +7,7 @@ import matplotlib.pyplot as chart
 # ======================================================================================
 # ARRAYS, NUMBER OF POINTS, KNN...
 knn = 1
-POINTS_COUNT = 1000
+POINTS_COUNT = 500
 
 red_count = 0
 blue_count = 0
@@ -111,8 +111,8 @@ def generate_missplaced_points(count, col_arr, color, x_border, y_border):
 def classification(X, Y, K):
     global final_points
 
-    for j in range(assigned_points):
-        temp_points[j].distance = math.sqrt(((X-temp_points[j].X) ** 2) + ((Y-temp_points[j].Y) ** 2))
+    for i in range(assigned_points):
+        temp_points[i].distance = math.sqrt(((X-temp_points[i].X) ** 2) + ((Y-temp_points[i].Y) ** 2))
     
     sorted_points = sorted(temp_points, key=lambda z: z.distance)
     
@@ -259,7 +259,7 @@ def start():
     print("Pocet bodov je:", POINTS_COUNT * 4 + 20)
     print("pocet chyb je: ", wrong)
     endT = time.time()
-    print("time elapsed:", endT - startT)
+    print("Cas trvania:", endT - startT)
 
     for point in final_points:
         chart.plot(point.X, point.Y, marker="o", color=point.color)
