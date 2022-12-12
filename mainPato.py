@@ -1,3 +1,6 @@
+# knn 1 3 7 15 naraz nie po jednom, aby sa klasifikovalo z rovnakej sady bodov
+
+
 import math
 import random
 import time
@@ -6,8 +9,8 @@ import matplotlib.pyplot as chart
 
 # ======================================================================================
 # ARRAYS, NUMBER OF POINTS, KNN...
-knn = 1
-POINTS_COUNT = 500
+knn = [1, 3, 7, 15]
+POINTS_COUNT = 100
 
 red_count = 0
 blue_count = 0
@@ -35,13 +38,19 @@ PURPLE_ARR_MISSPLACED = []
 
 # ======================================================================================
 # CONFIGURE CHART
-chart.suptitle(f'Classification k - {knn}')
+chart.suptitle('RGBP Classification')
 chart.yticks(np.arange(-5000, 6000, 1000))
 chart.yticks(np.arange(-5000, 6000, 1000))
 chart.xlim(-5000, 5000)
 chart.ylim(-5000, 5000)
 chart.xlabel("X")
 chart.ylabel("Y")
+gui, subchart = chart.subplots(2, 2)
+subchart[0, 0].set_title("KNN 1")
+subchart[0, 1].set_title("KNN 3")
+subchart[1, 0].set_title("KNN 7")
+subchart[1, 1].set_title("KNN 15")
+
 # ======================================================================================
 
 class POINT:
@@ -97,13 +106,10 @@ def generate_points(count, col_arr, color, xStart, xEnd, yStart, yEnd):
 
 def generate_missplaced_points(count, col_arr, color, x_border, y_border):
     for i in range(count):
-        while True:
-            x = random.randint(-5000, 5000)
-            y = random.randint(-5000, 5000)
-            if x > x_border and y > y_border:
-                col_arr.append(POINT(x, y, color))
-                break
-
+        x = random.randint(-5000, 5000)
+        y = random.randint(-5000, 5000)
+        col_arr.append(POINT(x, y, color))
+               
 # ======================================================================================
 #
 # ======================================================================================
@@ -157,35 +163,35 @@ def classification(X, Y, K):
 #
 # ======================================================================================
 
-def assign(color):
+def assign(color, knn):
     
     global current
     if random.random() < 0.99:
        
         if color == "red":
-            current = assign_color( red_count, RED_ARR, color)
+            current = assign_color( red_count, RED_ARR, color, knn)
         if color == "green":
-            current = assign_color(green_count, GREEN_ARR, color)
+            current = assign_color(green_count, GREEN_ARR, color, knn)
         if color == "blue":
-            current = assign_color( blue_count, BLUE_ARR, color)
+            current = assign_color( blue_count, BLUE_ARR, color, knn)
         if color == "purple":
-            current = assign_color( purple_count, PURPLE_ARR, color)
+            current = assign_color( purple_count, PURPLE_ARR, color, knn)
 
     else:
         if color == "red":
-            current = assign_color( red_count, RED_ARR_MISSPLACED, color)
+            current = assign_color( red_count, RED_ARR_MISSPLACED, color, knn)
         if color == "green":
-            current = assign_color( green_count, GREEN_ARR_MISSPLACED, color)
+            current = assign_color( green_count, GREEN_ARR_MISSPLACED, color, knn)
         if color == "blue":
-            current = assign_color( blue_count, BLUE_ARR_MISSPLACED, color)
+            current = assign_color( blue_count, BLUE_ARR_MISSPLACED, color, knn)
         if color == "purple":
-            current = assign_color( purple_count, PURPLE_ARR_MISSPLACED, color)
+            current = assign_color( purple_count, PURPLE_ARR_MISSPLACED, color, knn)
 
 # ======================================================================================
 #
 # ======================================================================================
 
-def assign_color(col_count, col_arr, color):
+def assign_color(col_count, col_arr, color, k):
     global red_count, green_count, blue_count, purple_count
     global  assigned_points
     if col_count != POINTS_COUNT:
@@ -204,7 +210,7 @@ def assign_color(col_count, col_arr, color):
         if color == "purple":
             purple_count += 1
            
-        current = classification(x_coord, y_coord, knn)
+        current = classification(x_coord, y_coord, knn[k])
         assigned_points  += 1
         return current
 
@@ -227,43 +233,65 @@ def start():
     generate_missplaced_points(POINTS_COUNT, PURPLE_ARR_MISSPLACED, "purple", 500, 500)
     
     color_list = ["red", "green", "blue", "purple"]
-    global current, previous, wrong
+    global current, assigned_points, previous, wrong, red_count, blue_count, green_count, purple_count
     startT = time.time()
 
-    temp_points.extend((Red1, Red2, Red3, Red4, Red5, 
-                          Green1, Green2, Green3, Green4, Green5, 
-                          Blue1, Blue2, Blue3, Blue4, Blue5, 
-                          Purple1, Purple2, Purple3, Purple4, Purple5))
-    
-    final_points.extend((Red1, Red2, Red3, Red4, Red5, 
-                       Green1, Green2, Green3, Green4, Green5, 
-                       Blue1, Blue2, Blue3, Blue4, Blue5, 
-                       Purple1, Purple2, Purple3, Purple4, Purple5))
+    for i in range(4):
+        print("KNN: ", knn[i])
 
-    while True:
-        if red_count == blue_count == green_count == purple_count == POINTS_COUNT:
-            break
+        red_count = 0
+        blue_count = 0 
+        green_count = 0 
+        purple_count = 0
+        assigned_points = 20
+        current, wrong, previous = "", 0, ""
+        global final_points, temp_points 
+        final_points = []
+        temp_points = []    
+        temp_points.extend((Red1, Red2, Red3, Red4, Red5, 
+                            Green1, Green2, Green3, Green4, Green5, 
+                            Blue1, Blue2, Blue3, Blue4, Blue5, 
+                            Purple1, Purple2, Purple3, Purple4, Purple5))
+        
+        final_points.extend((Red1, Red2, Red3, Red4, Red5, 
+                        Green1, Green2, Green3, Green4, Green5, 
+                        Blue1, Blue2, Blue3, Blue4, Blue5, 
+                        Purple1, Purple2, Purple3, Purple4, Purple5))
 
         while True:
-            random_color = random.randint(0, 3)
-            color = color_list[random_color]
-            if color != previous:
+            if red_count == blue_count == green_count == purple_count == POINTS_COUNT:
                 break
 
-        assign(color)                    
+            while True:
+                random_color = random.randint(0, 3)
+                color = color_list[random_color]
+                if color != previous:
+                    break
 
-        if current != color:
-            wrong += 1
-        previous = current
+            assign(color, i)                    
+            if current != color:
+                wrong += 1
+            previous = current
 
-    print("Pocet bodov je:", POINTS_COUNT * 4 + 20)
-    print("pocet chyb je: ", wrong)
-    endT = time.time()
-    print("Cas trvania:", endT - startT)
+        
+        
+        print("Knn: ", knn[i])
+        print("Pocet bodov je:", POINTS_COUNT * 4 + 20)
+        print("pocet chyb je: ", wrong)
+        endT = time.time()
+        print("Cas trvania:", endT - startT)
 
-    for point in final_points:
-        chart.plot(point.X, point.Y, marker="o", color=point.color)
-    
+        for points in final_points:
+
+            if i == 0:
+                subchart[0, 0].plot(points.X, points.Y, marker="o", color=points.color)
+            if i == 1:
+                subchart[0, 1].plot(points.X, points.Y, marker="o", color=points.color)
+            if i == 2:
+                subchart[1, 0].plot(points.X, points.Y, marker="o", color=points.color)
+            if i == 3:
+                subchart[1, 1].plot(points.X, points.Y, marker="o", color=points.color)
+    gui.tight_layout()
     chart.show()
 
 # ======================================================================================
